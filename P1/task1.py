@@ -15,32 +15,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_excel('Cr-poisoning.xlsx')
-X = df.iloc[:, 0:2]
-y = df.iloc[:, 2]
-
-le = LabelEncoder()
-y = le.fit_transform(y.values)
-
-scaler = StandardScaler()
-X = scaler.fit_transform(X)
-# y = scaler.fit(y)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, train_size=0.75)
-
-clf = SVC(kernel='linear', gamma=0.5, C=20)
-knn = KNeighborsClassifier(n_neighbors=4)
-rf = RandomForestClassifier()
-log_reg = LogisticRegression()
-model = rf
-model.fit(X_train, y_train)
-#
-y_hat = model.predict(X_test)
-
-confusion_mat = confusion_matrix(y_test, y_hat)
-print(confusion_mat)
-# print(classification_report(y_test, y_hat))
-print(accuracy_score(y_test, y_hat))
 
 def make_meshgrid(x, y, h=.02):
     x_min, x_max = x.min() - 1, x.max() + 1
@@ -92,26 +66,65 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fonts
     return fig
 
 
-print_confusion_matrix(confusion_mat, ["1", "2", "3", "4", "5"])
-plt.savefig("confusion_matrix_dummy.png")
+df = pd.read_excel('Cr-poisoning.xlsx')
+X = df.iloc[:, 0:2]
+y = df.iloc[:, 2]
 
-fig, ax = plt.subplots()
-title = 'Decision Boundary for KNN'
-X0, X1 = X[:, 0], X[:, 1]
-xx, yy = make_meshgrid(X0, X1)
+le = LabelEncoder()
+y = le.fit_transform(y.values)
 
-# plot_contours(ax, clf, xx, yy, cmap=plt.cm.get_cmap('Dark2'), alpha=0.8)
-plot_contours(ax, model, xx, yy, cmap=plt.cm.get_cmap('Dark2'), alpha=0.8)
-#ax.scatter(X0, X1, c=y, s=20, cmap=plt.cm.get_cmap('Dark2'), edgecolors='k')
-#plt.pcolormesh(xx, yy, Z, cmap=plt.cm.Paired)
-# Plot also the training points
-col_map = {'SrO': 'olive', 'SrCrO3': 'yellow', 'Sr3Cr2O8': 'magenta','Sr2CrO4':"blue",'SrCrO4':"navy"}
-plt.scatter(X0, X1, c= [col_map[lb] for lb in df['reaction product']], edgecolors='k', cmap=plt.cm.Paired)
-ax.set_ylabel('$log_{10}pCrO3_3$')
-ax.set_xlabel('$log_{10}pO_2$')
-ax.set_xticks(())
-ax.set_yticks(())
-ax.set_title(title)
-# ax.legend()
-plt.savefig('classification_dummy.png')
-plt.show()
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, train_size=0.75)
+
+clf = SVC(kernel='linear', gamma=0.5, C=20)
+knn = KNeighborsClassifier(n_neighbors=4)
+rf = RandomForestClassifier()
+log_reg = LogisticRegression()
+
+
+models = [clf,knn,rf,log_reg]
+modelNames = ["SVM", "KNN", "RandomForest", "LogisticRegression"]
+
+for i, model in enumerate(models):
+    print(modelNames[i])
+    if model == nn:
+        model.fit(X_train,y_train,epochs=150,batch_size = 4)
+    else:
+        model.fit(X_train, y_train)
+    
+    y_hat = model.predict(X_test)
+
+    confusion_mat = confusion_matrix(y_test, y_hat)
+    print(confusion_mat)
+
+    print(accuracy_score(y_test, y_hat))
+
+
+
+
+    print_confusion_matrix(confusion_mat, ["1", "2", "3", "4", "5"])
+    plt.savefig("confusion_matrix_" + modelNames[i]  + ".png")
+
+    fig, ax = plt.subplots()
+    title = 'Decision Boundary for ' + modelNames[i]
+    X0, X1 = X[:, 0], X[:, 1]
+    xx, yy = make_meshgrid(X0, X1)
+
+    # plot_contours(ax, clf, xx, yy, cmap=plt.cm.get_cmap('Dark2'), alpha=0.8)
+    plot_contours(ax, model, xx, yy, cmap=plt.cm.get_cmap('Dark2'), alpha=0.8)
+    #ax.scatter(X0, X1, c=y, s=20, cmap=plt.cm.get_cmap('Dark2'), edgecolors='k')
+    #plt.pcolormesh(xx, yy, Z, cmap=plt.cm.Paired)
+    # Plot also the training points
+    col_map = {'SrO': 'olive', 'SrCrO3': 'yellow', 'Sr3Cr2O8': 'magenta','Sr2CrO4':"blue",'SrCrO4':"navy"}
+    plt.scatter(X0, X1, c= [col_map[lb] for lb in df['reaction product']], edgecolors='k', cmap=plt.cm.Paired)
+    ax.set_ylabel('$log_{10}pCrO3_3$')
+    ax.set_xlabel('$log_{10}pO_2$')
+    ax.set_xticks(())
+    ax.set_yticks(())
+    ax.set_title(title)
+    # ax.legend()
+    plt.savefig('classification_' + modelNames[i] + '.png')
+    plt.show()
