@@ -15,35 +15,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-<<<<<<< HEAD
-=======
-df = pd.read_excel('Cr-poisoning.xlsx')
-X = df.iloc[:, 0:2]
-y = df.iloc[:, 2]
-
-le = LabelEncoder()
-y = le.fit_transform(y.values)
-
-scaler = StandardScaler()
-X = scaler.fit_transform(X)
-# y = scaler.fit(y)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, train_size=0.75)
-
-clf = SVC(kernel='linear', gamma=0.5, C=20)
-# knn = KNeighborsClassifier(n_neighbors=4)
-# rf = RandomForestClassifier()
-log_reg = LogisticRegression()
-model = clf
-model.fit(X_train, y_train)
-#
-y_hat = model.predict(X_test)
-
-confusion_mat = confusion_matrix(y_test, y_hat)
-print(confusion_mat)
-# print(classification_report(y_test, y_hat))
-print(accuracy_score(y_test, y_hat))
->>>>>>> andrei
 
 def make_meshgrid(x, y, h=.02):
     x_min, x_max = x.min() - 1, x.max() + 1
